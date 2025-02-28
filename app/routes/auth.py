@@ -35,7 +35,7 @@ GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
 
-@router.get("/auth/google")
+@router.get("/google")
 def login_with_google():
     state = secrets.token_urlsafe(16)  # CSRF-защита
     google_auth_url = (
@@ -48,7 +48,7 @@ def login_with_google():
     )
     return RedirectResponse(url=google_auth_url)
 
-@router.get("/auth/google/callback")
+@router.get("/google/callback")
 async def google_callback(code: str, state: str, db: Session = Depends(get_db)):  # ✅ Используем get_db из dependencies.py
     token_url = "https://oauth2.googleapis.com/token"
     data = {

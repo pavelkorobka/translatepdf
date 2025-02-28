@@ -5,8 +5,8 @@ import shutil
 import os
 from app.dependencies import get_db
 from app.models.pdf import PDFFile
-from app.auth import get_current_user
-from app.config import UPLOAD_DIR
+from app.routes.auth import get_current_user
+#from app.config import UPLOAD_DIR
 
 router = APIRouter()
 

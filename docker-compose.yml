@@ -1,0 +1,58 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    container_name: translatepdf_backend
+    restart: always
+    volumes:
+      - ./app:/translatepdf/app
+      - ./data:/translatepdf/data
+      - ./logs:/translatepdf/logs
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-level", "debug"]
+
+  postgres:
+    image: postgres:15
+    container_name: translatepdf_db
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  # frontend:
+  #   build:
+  #     context: .
+  #     dockerfile: docker/frontend.Dockerfile
+  #   container_name: translatepdf_frontend
+  #   restart: always
+  #   volumes:
+  #     - ./frontend:/translatepdf/frontend
+  #     - ./logs:/translatepdf/logs
+  #   ports:
+  #     - "5173:5173"
+  #   working_dir: /translatepdf/frontend
+  #   command: ["npm", "run", "dev"]
+
+  # nginx:
+  #   image: nginx:latest
+  #   container_name: translatepdf_nginx
+  #   restart: always
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+  #   depends_on:
+  #     - backend
+  #     - frontend
+
+volumes:
+  pg_data:
