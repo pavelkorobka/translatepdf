@@ -10,11 +10,9 @@ from datetime import datetime, timedelta
 from app.database import SessionLocal
 from app.models.user import User
 from app.dependencies import get_db  # ✅ Импорт get_db из dependencies.py
-from dotenv import load_dotenv
+from app.config import SECRET_KEY, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI
 
-load_dotenv()
 
-SECRET_KEY = os.getenv("SECRET_KEY")
 security = HTTPBearer()
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Security(security)):
@@ -30,10 +28,6 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Security(securi
         raise HTTPException(status_code=401, detail="Неверный токен")
 
 router = APIRouter()
-
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
-GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
 
 @router.get("/google")
 def login_with_google():

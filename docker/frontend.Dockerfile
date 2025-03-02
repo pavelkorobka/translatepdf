@@ -3,15 +3,16 @@ FROM node:23
 WORKDIR /translatepdf/frontend
 
 # Копируем package.json и package-lock.json перед установкой зависимостей
-COPY frontend/package*.json ./
+COPY frontend/package.json ./
 
-RUN npm install
+#RUN npm install --legacy-peer-deps
+RUN npm install --legacy-peer-deps
 
 # Копируем весь исходный код фронтенда
 COPY frontend/ ./
 
 # Открываем порт для dev-сервера Vite
-EXPOSE 5173
+#EXPOSE 5173
 
 # Запускаем сервер разработки Vite
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "dev", "--", "--host"]

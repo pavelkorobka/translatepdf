@@ -12,7 +12,8 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     env_file:
       - .env
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-level", "debug"]
@@ -27,32 +28,38 @@ services:
       - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      retries: 5
+      start_period: 5s
 
-  # frontend:
-  #   build:
-  #     context: .
-  #     dockerfile: docker/frontend.Dockerfile
-  #   container_name: translatepdf_frontend
-  #   restart: always
-  #   volumes:
-  #     - ./frontend:/translatepdf/frontend
-  #     - ./logs:/translatepdf/logs
-  #   ports:
-  #     - "5173:5173"
-  #   working_dir: /translatepdf/frontend
-  #   command: ["npm", "run", "dev"]
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    container_name: translatepdf_frontend
+    restart: always
+    volumes:
+      - ./frontend:/translatepdf/frontend
+      - ./logs:/translatepdf/logs
+      - /translatepdf/frontend/node_modules
+    ports:
+      - "5173:5173"
+    working_dir: /translatepdf/frontend
+    command: ["npx", "vite", "--host"]
 
-  # nginx:
-  #   image: nginx:latest
-  #   container_name: translatepdf_nginx
-  #   restart: always
-  #   ports:
-  #     - "80:80"
-  #   volumes:
-  #     - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
-  #   depends_on:
-  #     - backend
-  #     - frontend
+  nginx:
+    image: nginx:latest
+    container_name: translatepdf_nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+      - frontend
 
 volumes:
   pg_data:

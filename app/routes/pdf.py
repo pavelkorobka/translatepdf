@@ -2,15 +2,14 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from sqlalchemy.orm import Session
 import shutil
+import uuid
 import os
 from app.dependencies import get_db
 from app.models.pdf import PDFFile
 from app.routes.auth import get_current_user
-#from app.config import UPLOAD_DIR
+from app.config import UPLOAD_DIR, MAX_FILE_SIZE_MB
 
 router = APIRouter()
-
-MAX_FILE_SIZE_MB = 10  # Ограничение размера файлов
 
 # 1️⃣ Загрузка PDF (привязываем к пользователю)
 @router.post("/upload/")
@@ -28,20 +27,25 @@ async def upload_pdf(
         if file_size > MAX_FILE_SIZE_MB * 1024 * 1024:
             raise HTTPException(status_code=413, detail="Файл слишком большой (максимум 10MB)")
 
-    file_path = os.path.join(UPLOAD_DIR, f"{user_data['id']}_{file.filename}")
+    # Создаем уникальное имя файла
+    unique_id = str(uuid.uuid4())[:8]  # Генерируем короткий UUID (8 символов)
+    file_extension = os.path.splitext(file.filename)[1]  # Получаем расширение
+    new_filename = f"{unique_id}_{file.filename}"  # Уникальное имя файла
+    file_path = os.path.join(UPLOAD_DIR, new_filename)
 
+    # Сохраняем файл на диск
     with open(file_path, "wb") as buffer:
         buffer.write(file.file.read())
 
     pdf_entry = PDFFile(
-        filename=file.filename,
+        filename=new_filename,
         filepath=file_path,
         user_id=user_data["id"]
     )
     db.add(pdf_entry)
     db.commit()
 
-    return {"message": "Файл загружен", "filename": file.filename}
+    return {"message": "Файл загружен", "filename": new_filename}
 
 # 2️⃣ Получение списка файлов (только своих)
 @router.get("/files/")
