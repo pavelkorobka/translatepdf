@@ -5,8 +5,12 @@ export const uploadFile = async (file) => {
   const formData = new FormData();
   formData.append("file", file);
 
+  console.log("🔹 access_token:", getAccessToken());
   return api.post("/pdf/upload/", formData, {
-    headers: { Authorization: `Bearer ${getAccessToken()}` },
+    headers: {
+      "Content-Type": "multipart/form-data", 
+      Authorization: `Bearer ${getAccessToken()}` 
+    },
   });
 };
 

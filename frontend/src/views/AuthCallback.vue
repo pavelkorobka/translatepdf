@@ -1,3 +1,10 @@
+<template>
+  <div>
+    <h2>Авторизация...</h2>
+    <p>Пожалуйста, подождите. Мы проверяем вашу учетную запись.</p>
+  </div>
+</template>
+
 <script setup>
 import { onMounted } from "vue";
 import { useAuthStore } from "../store/authStore";
@@ -14,7 +21,7 @@ onMounted(() => {
 
     console.log("🔹 Полученный access_token:", accessToken);
     console.log("🔹 Полученный refresh_token:", refreshToken);
-    alert("⚠️ Проверка токенов! Посмотри консоль.");
+    // alert("⚠️ Проверка токенов! Посмотри консоль.");
 
     if (!accessToken || !refreshToken) {
       console.error("❌ Ошибка: Токены отсутствуют в URL");
