@@ -1,4 +1,5 @@
-import api from "./index";
+import api from "./index"
+import { setTokens } from "../utils/authHelper";;
 
 export const login = () => {
   window.location.href = `${api.defaults.baseURL}/auth/google`;

@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from app.database import SessionLocal
 from app.models.user import User
 from app.dependencies import get_db  # ✅ Импорт get_db из dependencies.py
-from app.config import SECRET_KEY, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI
+from app.config import SECRET_KEY, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, FRONTEND_URL
 
 
 security = HTTPBearer()
@@ -98,14 +98,16 @@ async def google_callback(code: str, state: str, db: Session = Depends(get_db)):
     token_payload = {"email": user.email, "id": user.id, "exp": expiration}
     access_token = jwt.encode(token_payload, SECRET_KEY, algorithm="HS256")
 
-    return {
-        "access_token": access_token,
-        "refresh_token": user.refresh_token,
-        "token_type": "bearer",
-        "user": user_json
-    }
+    redirect_url = f"{FRONTEND_URL}?access_token={access_token}&refresh_token={user.refresh_token}"
+    return RedirectResponse(url=redirect_url)
+    # return {
+    #     "access_token": access_token,
+    #     "refresh_token": user.refresh_token,
+    #     "token_type": "bearer",
+    #     "user": user_json
+    # }
 
-@router.post("/auth/refresh")
+@router.post("/refresh")
 def refresh_token(refresh_token: str, db: Session = Depends(get_db)):  # ✅ Используем get_db из dependencies.py
     user = db.query(User).filter(User.refresh_token == refresh_token).first()
 
