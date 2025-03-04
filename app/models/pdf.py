@@ -11,5 +11,8 @@ class PDFFile(Base):
     filepath = Column(String, nullable=False)
     uploaded_at = Column(DateTime, default=datetime.utcnow)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    project_id = Column(Integer, ForeignKey("projects.id", ondelete="SET NULL"), nullable=True)
+
 
     owner = relationship("User", back_populates="files")
+    project = relationship("Project", back_populates="files")

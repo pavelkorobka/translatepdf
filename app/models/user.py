@@ -14,3 +14,4 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     files = relationship("PDFFile", back_populates="owner", cascade="all, delete-orphan")
+    projects = relationship("Project", back_populates="owner", cascade="all, delete")

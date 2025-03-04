@@ -6,6 +6,7 @@ import uuid
 import os
 from app.dependencies import get_db
 from app.models.pdf import PDFFile
+from app.models.project import Project
 from app.routes.auth import get_current_user
 from app.config import UPLOAD_DIR, MAX_FILE_SIZE_MB
 
@@ -94,3 +95,15 @@ async def delete_all_pdfs(
 
     db.commit()
     return {"message": "Все файлы удалены"}
+
+@router.put("/{pdf_id}/set_project")
+def set_pdf_project(pdf_id: int, project_id: int, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    pdf = db.query(PDFFile).filter(PDFFile.id == pdf_id, PDFFile.user_id == user.id).first()
+    if not pdf:
+        raise HTTPException(status_code=404, detail="PDF not found")
+    project = db.query(Project).filter(Project.id == project_id, Project.user_id == user.id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    pdf.project_id = project.id
+    db.commit()
+    return {"message": "PDF project updated"}
